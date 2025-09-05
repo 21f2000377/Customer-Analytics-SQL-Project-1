@@ -206,3 +206,92 @@ UPDATE Customers
 SET Age_Group = '18-25' 
 WHERE Age = 18 AND Age_Group IS NULL;
 ```
+
+### 3. Data Analysis & Findings 
+
+1. **Write a SQL query to show customer counts and share (%) by Preferred_Category (sorted by share).**
+```sql
+SELECT Preferred_Category,
+COUNT(CustomerID) AS Customer_Count,
+ROUND(COUNT(CustomerID)*100.0/(SELECT COUNT(*) FROM Customers),2) AS Share_Percent
+FROM Customers
+GROUP BY Preferred_Category
+ORDER BY share_percent DESC;
+```
+
+2. **Write a SQL query to calculate average Spending_Score and Annual_Income for each Preferred_Category.**
+```sql
+SELECT Preferred_Category, 
+ROUND(AVG(Spending_Score),2) AS Avg_spending_score,
+ROUND(AVG(Annual_Income),2) AS Avg_annual_income
+FROM Customers
+GROUP BY Preferred_Category
+ORDER BY Avg_spending_score DESC, Avg_annual_income DESC;
+```
+
+3. **Write a SQL query to find the Age_Group with the highest average Estimated_Savings.**
+```sql
+SELECT TOP 1
+Age_Group,
+ROUND(AVG(Estimated_Savings),2) AS Highest_Avg_est_savings
+FROM Customers
+GROUP BY Age_Group
+ORDER BY Highest_Avg_est_savings DESC;
+```
+4.**Write a SQL query to list the top 10 customers by Estimated_Savings (include Age_Group and Preferred_Category).**
+```sql
+SELECT TOP 10
+CustomerID, Age_Group, Preferred_Category, ROUND(Estimated_Savings,2) AS Estimated_Savings
+FROM Customers
+ORDER BY Estimated_Savings DESC;
+```
+5. **Write a SQL query to compute average Credit_Score by Gender and by Age_Group (two separate summaries).**
+```sql
+SELECT 'Gender' AS Category_type, Gender AS Value,  ROUND(AVG(Credit_Score),2) AS Avg_credit_score
+FROM Customers
+GROUP BY Gender
+
+UNION ALL
+
+SELECT 'Age_Group' AS Category_type, Age_Group AS Value,  ROUND(AVG(Credit_Score),2) AS Avg_credit_score
+FROM Customers
+GROUP BY Age_Group;
+```
+6. **Write a SQL query to show average Loyalty_Years by Preferred_Category.**
+```sql
+SELECT Preferred_Category, ROUND(AVG(Loyalty_Years),2) AS Avg_loyalty_years
+FROM Customers
+GROUP BY Preferred_Category
+ORDER BY Avg_loyalty_years DESC;
+```
+7. **Write a SQL query to find the Preferred_Category mix for each Gender (counts and % within each gender).**
+```sql
+SELECT Gender, Preferred_Category, COUNT(Preferred_Category) AS category_count, ROUND(COUNT(Preferred_Category)*100.0/SUM(COUNT(Preferred_Category)) OVER(PARTITION BY Gender),2) AS percent_within_gender
+FROM Customers
+GROUP BY Gender, Preferred_Category
+ORDER BY percent_within_gender DESC;
+```
+8.**Write a SQL query to rank Age_Groups by average Spending_Score (highest to lowest).**
+```sql
+SELECT Age_Group, avg_spending_score , RANK() OVER(ORDER BY avg_spending_score DESC) AS rnk
+FROM(
+SELECT Age_Group, ROUND(AVG(Spending_Score),2) AS avg_spending_score
+FROM Customers
+GROUP BY Age_Group
+)t
+ORDER BY rnk;
+```
+9.**Write a SQL query to return customers with Credit_Score < 600 along with counts by Preferred_Category.**
+```sql
+SELECT Preferred_Category, COUNT(CustomerID) AS count
+FROM Customers
+WHERE Credit_Score < 600
+GROUP BY Preferred_Category
+ORDER BY count DESC;
+```
+10.**Write a SQL query to list customers whose Annual_Income is above the overall average and Spending_Score is also above the overall average.**
+```sql
+SELECT CustomerID
+FROM Customers
+WHERE Annual_Income > (SELECT AVG(Annual_Income) FROM Customers) AND Spending_Score > (SELECT AVG(Spending_Score) FROM Customers);
+```
