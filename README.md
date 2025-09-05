@@ -15,7 +15,7 @@ A beginner‑friendly SQL Server project analyzing the Customer Analytics Practi
 3. **Exploratory Data Analysis (EDA):** Profile demographics, income, spending, savings, credit, and loyalty.  
 4. **Business Analysis:** Answer segmentation and category-preference questions; identify high-value and at-risk segments.
 
-##Project Structure
+## Project Structure
 
 ### 1. Database Setup
 
@@ -91,4 +91,104 @@ MAX(Loyalty_Years) AS Maximum,
 AVG(Loyalty_Years) AS Average,
 (SELECT DISTINCT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY Loyalty_Years) OVER() FROM Customers) AS Median
 FROM Customers;
+```
+
+4. **Write a SQL query to show customer counts by Gender, by Age_Group, and by Preferred_Category (separately)**
+```sql
+SELECT Gender, COUNT(CustomerID) AS Customer_counts
+FROM Customers
+GROUP BY Gender;
+
+SELECT Age_Group, COUNT(CustomerID) AS Customer_counts
+FROM Customers
+GROUP BY Age_Group;
+
+SELECT Preferred_Category, COUNT(CustomerID) AS Customer_counts
+FROM Customers
+GROUP BY Preferred_Category;
+```
+
+**Data quality checks**
+
+5. **Write a SQL query to show null counts for each column.**
+```sql
+SELECT 'CustomerID' AS Category_name,
+SUM(CASE WHEN CustomerID IS NULL THEN 1 ELSE 0 END) AS Null_Count
+FROM Customers
+
+UNION ALL
+
+SELECT 'Gender',
+SUM(CASE WHEN Gender IS NULL THEN 1 ELSE 0 END)
+FROM Customers
+
+UNION ALL
+
+SELECT 'Age',
+SUM(CASE WHEN Age IS NULL THEN 1 ELSE 0 END)
+FROM Customers
+
+UNION ALL
+
+SELECT 'Annual_Income',
+SUM(CASE WHEN Annual_Income IS NULL THEN 1 ELSE 0 END)
+FROM Customers
+
+UNION ALL
+
+SELECT 'Spending_Score',
+SUM(CASE WHEN Spending_Score IS NULL THEN 1 ELSE 0 END)
+FROM Customers
+
+UNION ALL
+
+SELECT 'Age_Group',
+SUM(CASE WHEN Age_Group IS NULL THEN 1 ELSE 0 END)
+FROM Customers
+
+UNION ALL
+
+SELECT 'Estimated_Savings',
+SUM(CASE WHEN Estimated_Savings IS NULL THEN 1 ELSE 0 END)
+FROM Customers
+
+UNION ALL
+
+SELECT 'Credit_Score',
+SUM(CASE WHEN Credit_Score IS NULL THEN 1 ELSE 0 END)
+FROM Customers
+
+UNION ALL
+
+SELECT 'Loyalty_Years',
+SUM(CASE WHEN Loyalty_Years IS NULL THEN 1 ELSE 0 END)
+FROM Customers
+
+UNION ALL
+
+SELECT 'Preferred_Category',
+SUM(CASE WHEN Preferred_Category IS NULL THEN 1 ELSE 0 END)
+FROM Customers
+ORDER BY Null_Count DESC;
+```
+6. **Write a SQL query to find out-of-range values**
+```sql
+SELECT *
+FROM Customers
+WHERE (Age NOT BETWEEN 10 AND 100) OR
+(Spending_Score NOT BETWEEN 0 AND 100) OR
+(Credit_Score NOT BETWEEN 300 AND 900) OR
+(Annual_Income < 0 OR Estimated_Savings <0) OR
+(Loyalty_Years < 0 OR Loyalty_Years> 60)
+```
+7. **Write a SQL query to find inconsistencies between age and age_group (e.g., Age=23 but AgeGroup not in 18–25)**
+```sql
+SELECT CustomerID, Age, Age_Group
+FROM Customers
+WHERE (Age < 18 AND Age_Group IS NOT NULL) OR
+(Age BETWEEN 18 AND 25 AND Age_Group != '18-25') OR
+(Age BETWEEN 26 AND 35 AND Age_Group != '26-35') OR
+(Age BETWEEN 36 AND 50 AND Age_Group != '36-50') OR
+(Age BETWEEN 51 AND 65 AND Age_Group != '51-65') OR
+(Age >= 66 AND Age_Group != '65+') OR Age_Group IS NULL;
 ```
