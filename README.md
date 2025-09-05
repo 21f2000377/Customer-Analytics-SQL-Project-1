@@ -1,9 +1,13 @@
 # Customer-Analytics-SQL-Project-1
 
 ## Project Overview
+
 **Project Title:** Customer Analytics in SQL Server (Mall Customers Enhanced)
+
 **Level:** Beginner–Intermediate
+
 **Tools:** SQL Server + SSMS, GitHub
+
 **Dataset:** “Customer Analytics Practice Dataset” (Mall_Customers_Enhanced.csv) from Kaggle
 
 A beginner‑friendly SQL Server project analyzing the Customer Analytics Practice Dataset (Mall_Customers_Enhanced.csv). Import via SSMS, clean and profile the data, then answer business questions on demographics, income, spending, savings, credit score, loyalty, and category preference. Includes analysis questions, documentation, and reproducible steps.
@@ -191,4 +195,14 @@ WHERE (Age < 18 AND Age_Group IS NOT NULL) OR
 (Age BETWEEN 36 AND 50 AND Age_Group != '36-50') OR
 (Age BETWEEN 51 AND 65 AND Age_Group != '51-65') OR
 (Age >= 66 AND Age_Group != '65+') OR Age_Group IS NULL;
+```
+**Cleaning Actions**
+
+8. **Write SQL to handle NULLs in Age_Group column.**
+
+It was found there were 4 null age groups belonging to age 18.
+```sql
+UPDATE Customers
+SET Age_Group = '18-25' 
+WHERE Age = 18 AND Age_Group IS NULL;
 ```
