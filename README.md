@@ -365,4 +365,12 @@ WHERE rnk IN (1,2,3);
 ```
 18. **Write a SQL query to compute the 90th percentile of Spending_Score overall and by Age_Group.**
 ```sql
+SELECT DISTINCT 'Overall' AS category, 
+PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY Spending_Score) OVER() AS percentile_90
+FROM Customers
+UNION ALL
+SELECT DISTINCT Age_Group AS category, 
+PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY Spending_Score) OVER(PARTITION BY Age_Group) AS percentile_90
+FROM Customers;
 ```
+19. **
