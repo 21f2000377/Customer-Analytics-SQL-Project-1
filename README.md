@@ -295,3 +295,74 @@ SELECT CustomerID
 FROM Customers
 WHERE Annual_Income > (SELECT AVG(Annual_Income) FROM Customers) AND Spending_Score > (SELECT AVG(Spending_Score) FROM Customers);
 ```
+11. **Write a SQL query to bucket Annual_Income into bands (e.g., Under 30k, 30–60k, 60–100k, 100k+) and show the category distribution per band.**
+```sql
+SELECT Income_band, COUNT(Income_band) AS Count, ROUND(COUNT(Income_band)*100.0/(SELECT COUNT(*) FROM Customers),2) AS category_distribution
+FROM(
+SELECT Annual_Income,
+CASE WHEN Annual_Income < 30 THEN 'Under 30k' 
+WHEN Annual_Income BETWEEN 30 AND 60 THEN '30-60k' 
+WHEN Annual_Income BETWEEN 61 AND 100 THEN '61-100k' ELSE '100k+' END AS Income_band
+FROM Customers)t
+GROUP BY Income_band
+ORDER BY category_distribution DESC;
+```
+12. **Write a SQL query to create income deciles and report average Spending_Score within each decile.**
+```sql
+SELECT Income_Decile, AVG(Spending_Score) AS Avg_spending_score
+FROM(
+SELECT CustomerID, Spending_Score,
+Annual_Income,
+NTILE(10) OVER(ORDER BY Annual_Income) As Income_Decile
+FROM Customers)t
+GROUP BY Income_Decile;
+```
+13.** Write a SQL query to compute the Savings_to_Income ratio for each customer and list the top 10 ratios.**
+```sql
+SELECT TOP 10
+CustomerID, ROUND(Estimated_Savings/Annual_Income,2) AS Savings_to_Income_ratio
+FROM Customers
+ORDER BY Savings_to_Income_ratio DESC;
+```
+14.** Write a SQL query to identify “under‑savers”: customers in the top income decile but with Estimated_Savings below the overall median.**
+```sql
+SELECT CustomerID 
+FROM (
+SELECT CustomerID, NTILE(10) OVER(ORDER BY Annual_Income DESC) AS income_decile, Estimated_Savings
+FROM Customers
+WHERE Estimated_Savings < (SELECT DISTINCT PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY Estimated_Savings) OVER() FROM Customers)
+)t
+WHERE income_decile = 1;
+```
+15. **Write a SQL query to band Credit_Score (Poor, Fair, Good, Very Good, Exceptional) and show average Spending_Score and counts per band.**
+```sql
+SELECT credit_band, AVG(Spending_Score) AS Avg_spending_score, COUNT(*) AS count_per_band
+FROM(
+SELECT Credit_Score, Spending_Score,
+CASE WHEN Credit_Score <=300 THEN 'Poor'
+WHEN Credit_Score between 301 AND 400 THEN 'Fair'
+WHEN Credit_Score BETWEEN 401 AND 550 THEN 'Good'
+WHEN Credit_Score BETWEEN 551 AND 800 THEN 'Very Good'
+ELSE 'Exceptional' END AS credit_band
+FROM Customers)t
+GROUP BY credit_band
+ORDER BY Avg_spending_score DESC;
+```
+16. ** Write a SQL query to find the Gender gap in Spending_Score within each Age_Group (difference Male vs Female).**
+```sql
+SELECT Age_Group,AVG(CASE WHEN Gender='Male' THEN Spending_Score ELSE NULL END) AS male_spending_score, AVG(CASE WHEN Gender='Female' THEN Spending_Score ELSE NULL END) AS female_spending_score, ABS(AVG(CASE WHEN Gender='Male' THEN Spending_Score ELSE NULL END)-AVG(CASE WHEN Gender='Female' THEN Spending_Score ELSE NULL END)) AS Gender_gap
+FROM Customers
+GROUP BY Age_Group
+ORDER BY Gender_gap DESC;
+```
+17.** Write a SQL query to return the top 3 customers by Spending_Score within each Preferred_Category (rank per category).**
+```sql
+SELECT CustomerID, Preferred_Category,  Spending_Score, rnk
+FROM(
+SELECT CustomerID, Preferred_Category, Spending_Score, DENSE_RANK() OVER(PARTITION BY Preferred_Category ORDER BY Spending_Score DESC) AS rnk
+FROM Customers)t
+WHERE rnk IN (1,2,3);
+```
+18. **Write a SQL query to compute the 90th percentile of Spending_Score overall and by Age_Group.**
+```sql
+```
