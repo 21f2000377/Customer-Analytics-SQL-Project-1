@@ -373,4 +373,25 @@ SELECT DISTINCT Age_Group AS category,
 PERCENTILE_CONT(0.9) WITHIN GROUP (ORDER BY Spending_Score) OVER(PARTITION BY Age_Group) AS percentile_90
 FROM Customers;
 ```
-19. **
+19. ** Write a SQL query to pivot Age_Group as rows and Preferred_Category as columns showing customer counts (or avg Spending_Score).**
+```sql
+SELECT 
+Age_Group AS Age_Group, 
+SUM(CASE WHEN Preferred_Category='Budget' THEN 1 ELSE 0 END) AS budget_category,
+SUM(CASE WHEN Preferred_Category='Electronics' THEN 1 ELSE 0 END) AS electronics_category,
+SUM(CASE WHEN Preferred_Category='Fashion' THEN 1 ELSE 0 END) AS fashion_category,
+SUM(CASE WHEN Preferred_Category='Luxury' THEN 1 ELSE 0 END) AS luxury_category
+FROM Customers
+GROUP BY Age_Group;
+```
+20. **Write a SQL query to find customers whose Annual_Income is above their Age_Group average AND whose Spending_Score is above their Age_Group average.**
+```sql
+SELECT CustomerID,
+Age_Group,
+Annual_Income,
+Spending_Score
+FROM Customers c
+WHERE Annual_Income > (SELECT AVG(Annual_Income) FROM Customers WHERE Age_Group = c.Age_Group) AND
+Spending_Score > (SELECT AVG(Spending_Score) FROM Customers WHERE Age_Group = c.Age_Group)
+ORDER BY Age_Group, CustomerID;
+```
